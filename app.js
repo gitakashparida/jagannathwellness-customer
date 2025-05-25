@@ -149,17 +149,26 @@ document.addEventListener("DOMContentLoaded", () => {
                 apikey: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdmeXV1c2x2bmxrYnF6dGJkdXlzIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc0MDMwODQzOSwiZXhwIjoyMDU1ODg0NDM5fQ.oTifqXRyaBFyJReUHWIO21cwNBDd7PbplajanFdhbO8",
                 Authorization: `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdmeXV1c2x2bmxrYnF6dGJkdXlzIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc0MDMwODQzOSwiZXhwIjoyMDU1ODg0NDM5fQ.oTifqXRyaBFyJReUHWIO21cwNBDd7PbplajanFdhbO8`,
                 "Content-Type": "application/json",
+                "Prefer": "return=representation"
             },
             body: JSON.stringify(orderData),
         })
             .then((response) => {
-                if (response.status === 201) {
-                    alert("Order placed successfully!");
+                if (!response.ok) {
+                    throw new Error(`Failed to place order. Status: ${response.status}`);
+                }
+                return response.json(); // Parse response to get the inserted row
+            })
+            .then((data) => {
+                if (data && data.length > 0) {
+                    const orderUid = data[0].uid;
+                    alert(`Order placed successfully!\nOrder Number: ${orderUid}`);
+
                     selectedProducts = [];
                     customerNameInput.value = "";
                     updateOrderSummary();
                 } else {
-                    throw new Error(`Failed to place order. Status: ${response.status}`);
+                    throw new Error("Order placed but no data returned.");
                 }
             })
             .catch((error) => {
@@ -167,4 +176,4 @@ document.addEventListener("DOMContentLoaded", () => {
                 alert("Failed to place order. Please try again.");
             });
     });
-    });
+});
