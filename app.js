@@ -88,24 +88,44 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // Update order summary
     function updateOrderSummary() {
-        orderSummary.innerHTML = "";
-        let totalCost = 0;
-        let totalSp = 0;
+            orderSummary.innerHTML = "";
+            let totalCost = 0;
+            let totalSp = 0;
 
-        selectedProducts.forEach((product) => {
-            const itemCost = product.price * product.quantity;
-            const itemSp = product.sp * product.quantity;
-            totalCost += itemCost;
-            totalSp += itemSp;
+            selectedProducts.forEach((product, index) => {
+                const itemCost = product.price * product.quantity;
+                const itemSp = product.sp * product.quantity;
+                totalCost += itemCost;
+                totalSp += itemSp;
 
-            const item = document.createElement("div");
-            item.textContent = `${product.name} (x${product.quantity}) - ₹${itemCost} (SP: ${itemSp})`;
-            orderSummary.appendChild(item);
-        });
+                const item = document.createElement("div");
+                item.style.display = "flex";
+                item.style.justifyContent = "space-between";
+                item.style.alignItems = "center";
+                item.style.marginBottom = "4px";
+                item.style.fontSize = "14px";
 
-        totalCostElement.textContent = `Total Cost: ₹${totalCost}`;
-        totalSpElement.textContent = `Total SP: ${totalSp}`;
-    }
+                const infoSpan = document.createElement("span");
+                infoSpan.textContent = `${product.name} (x${product.quantity}) - Rs. ${itemCost} (SP: ${itemSp})`;
+
+                const removeBtn = document.createElement("button");
+                removeBtn.textContent = "Remove from Cart";
+                removeBtn.style.fontSize = "15px";
+                removeBtn.style.padding = "2px 6px";
+                removeBtn.style.marginLeft = "300px";
+                removeBtn.addEventListener("click", () => {
+                    selectedProducts.splice(index, 1);
+                    updateOrderSummary();
+                });
+
+                item.appendChild(infoSpan);
+                item.appendChild(removeBtn);
+                orderSummary.appendChild(item);
+            });
+
+            totalCostElement.textContent = `Total Cost: Rs. ${totalCost}`;
+            totalSpElement.textContent = `Total SP: ${totalSp}`;
+        }
 
     // Handle Add button click
     addProductButton.addEventListener("click", () => {
