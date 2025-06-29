@@ -1,13 +1,90 @@
 body {
     font-family: Arial, sans-serif;
-    padding: 20px;
+    padding: 0;
+    margin: 0;
     background-color: #f9f9f9;
 }
 
-h1, h1 {
-    text-align: center; /* Center the text horizontally */
-    margin-top: 20px; /* Adjust top margin as needed */
-    margin-bottom: 20px; /* Adjust bottom margin as needed */
+header {
+    background-color: #2c3e50;
+    color: white;
+    padding: 0;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.header-content {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 10px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: relative;
+}
+
+header h1 {
+    margin: 0 auto;
+    font-size: 1.5rem;
+    color: white;
+    padding: 5px 0;
+    text-align: center;
+    position: relative;
+    left: 0;
+    right: 0;
+    max-width: 80%;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.logout-btn {
+    background-color: transparent;
+    color: white;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 4px;
+    cursor: pointer;
+    height: 32px;
+    padding: 0 12px 0 8px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    font-size: 0.85rem;
+    font-weight: 500;
+    line-height: 1;
+    transition: all 0.2s ease;
+    position: absolute;
+    right: 20px;
+    top: 50%;
+    transform: translateY(-50%);
+    white-space: nowrap;
+    width: auto;
+    min-width: auto;
+}
+
+.logout-btn:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.5);
+    transform: translateY(calc(-50% - 1px));
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.logout-btn svg {
+    width: 14px;
+    height: 14px;
+    flex-shrink: 0;
+}
+
+main {
+    padding: 20px;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+h1 {
+    text-align: center;
+    margin: 20px 0;
+    color: #2c3e50;
 }
 
 h2 {
@@ -55,6 +132,22 @@ h2 {
     overflow-y: auto;
 }
 
+.remove-btn {
+    color: white;
+    font-size: 14px;
+    cursor: pointer;
+    padding: 4px 8px;
+    background-color: #e74c3c;
+    border: none;
+    border-radius: 4px;
+    transition: background-color 0.2s;
+}
+
+.remove-btn:hover {
+    background-color: #c0392b;
+}
+
+
 .total-cost,
 .total-sp {
     font-weight: bold;
@@ -74,4 +167,159 @@ button {
 
 button:hover {
     background-color: #0056b3;
+}
+
+.order-container {
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    margin-bottom: 20px;
+}
+
+.order-header {
+    border-bottom: 1px solid #eee;
+    padding-bottom: 15px;
+    margin-bottom: 15px;
+}
+
+.order-header h3 {
+    margin: 0 0 10px 0;
+    color: #333;
+}
+
+.order-header span {
+    display: block;
+    color: #666;
+    margin-bottom: 5px;
+    font-size: 0.9em;
+}
+
+.order-details ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.order-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 10px 0;
+    border-bottom: 1px solid #f5f5f5;
+    align-items: center;
+}
+
+.order-item:last-child {
+    border-bottom: none;
+}
+
+.item-name {
+    font-weight: 500;
+    color: #333;
+    flex: 2;
+}
+
+.item-details {
+    color: #666;
+    flex: 2;
+    text-align: right;
+    padding: 0 15px;
+}
+
+.item-total {
+    font-weight: 600;
+    color: #2c3e50;
+    min-width: 80px;
+    text-align: right;
+}
+
+.order-total {
+    margin-top: 15px;
+    padding-top: 15px;
+    border-top: 2px solid #eee;
+    font-weight: bold;
+    color: #2c3e50;
+    text-align: right;
+    font-size: 1.1em;
+}
+
+/* Responsive adjustments */
+@media (max-width: 600px) {
+    .order-item {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    .item-details,
+    .item-total {
+        text-align: left;
+        padding: 5px 0 0 0;
+    }
+}
+
+.order-history-container {
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    margin-bottom: 20px;
+}
+
+.date-search-container {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+
+input[type="text"],
+input[type="number"],
+input[type="tel"] {
+    padding: 10px;
+    margin: 5px 0;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.customer-info {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+
+.customer-info input {
+    flex: 1;
+}
+
+.date-picker {
+    padding: 10px;
+    font-size: 16px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    flex-grow: 1;
+}
+
+.hint-text {
+    color: #666;
+    font-size: 14px;
+    margin-top: 5px;
+    font-style: italic;
+}
+
+/* Style the date picker icon */
+input[type="date"]::-webkit-calendar-picker-indicator {
+    cursor: pointer;
+    opacity: 0.7;
+}
+
+input[type="date"]::-webkit-calendar-picker-indicator:hover {
+    opacity: 1;
+}
+
+/* Style for the Get Orders button */
+#get-orders {
+    width: auto;
+    padding: 10px 20px;
+    white-space: nowrap;
 }
