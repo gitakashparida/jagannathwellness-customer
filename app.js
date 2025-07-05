@@ -681,7 +681,9 @@ function saveEditedOrder(orderUid) {
                 }
             })
             .then((data) => {
-                alert(`Order #${data.orderNumber} placed successfully!`);
+                console.log('Order creation response:', data);
+                const orderNumber = data[0]?.uid || 'N/A';
+                alert(`Order #${orderNumber} placed successfully!`);
                 selectedProducts = [];
                 customerNameInput.value = "";
                 document.getElementById("customer-phone").value = "";
