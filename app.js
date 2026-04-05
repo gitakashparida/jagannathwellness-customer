@@ -696,6 +696,7 @@ function saveEditedOrder(orderUid) {
             product_names: selectedProducts.map((p) => `${p.name} x Qty: ${p.quantity} x Price: ${p.price} x SP: ${p.sp}`).join(", "),
             total_cost: selectedProducts.reduce((sum, p) => sum + p.price * p.quantity, 0),
             total_sp: selectedProducts.reduce((sum, p) => sum + p.sp * p.quantity, 0),
+            order_date: new Date(Date.now() + 5.5 * 60 * 60 * 1000).toISOString().slice(0, 19).replace('T', ' '),
         };
         
         console.log("orderData", orderData);
@@ -775,9 +776,7 @@ function saveEditedOrder(orderUid) {
                        const order = orders[0];
                        const orderItems = order.product_names.split(", ");
                        const orderDate = new Date(order.order_date);
-                       // Convert to IST by adding 5.5 hours (330 minutes)
-                       orderDate.setMinutes(orderDate.getMinutes() + 330);
-                       // Format the date
+                       // Format the date (already in IST)
                        const formattedDate = orderDate.toLocaleString('en-IN', {
                            year: 'numeric',
                            month: 'long',
