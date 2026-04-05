@@ -181,7 +181,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
         orderHistoryElement.innerHTML = "<p>Loading order...</p>";
 
-        fetch(`https://gfyuuslvnlkbqztbduys.supabase.co/rest/v1/orders?uid=eq.${orderNumber}&select=*`, {
+        // First try to find by order_number (new format)
+        fetch(`https://gfyuuslvnlkbqztbduys.supabase.co/rest/v1/orders?order_number=eq.${orderNumber}&select=*`, {
             headers: {
                 apikey: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdmeXV1c2x2bmxrYnF6dGJkdXlzIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc0MDMwODQzOSwiZXhwIjoyMDU1ODg0NDM5fQ.oTifqXRyaBFyJReUHWIO21cwNBDd7PbplajanFdhbO8",
                 Authorization: `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdmeXV1c2x2bmxrYnF6dGJkdXlzIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc0MDMwODQzOSwiZXhwIjoyMDU1ODg0NDM5fQ.oTifqXRyaBFyJReUHWIO21cwNBDd7PbplajanFdhbO8`,
@@ -197,6 +198,27 @@ document.addEventListener("DOMContentLoaded", () => {
         .then((orderItems) => {
             console.log('Full order response:', JSON.stringify(orderItems, null, 2)); // Log the full response
             console.log('First order item structure:', orderItems[0] ? Object.keys(orderItems[0]) : 'No items');
+            
+            // If not found by order_number, try by uid (for old orders)
+            if (orderItems.length === 0 && !isNaN(orderNumber)) {
+                return fetch(`https://gfyuuslvnlkbqztbduys.supabase.co/rest/v1/orders?uid=eq.${orderNumber}&select=*`, {
+                    headers: {
+                        apikey: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdmeXV1c2x2bmxrYnF6dGJkdXlzIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc0MDMwODQzOSwiZXhwIjoyMDU1ODg0NDM5fQ.oTifqXRyaBFyJReUHWIO21cwNBDd7PbplajanFdhbO8",
+                        Authorization: `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdmeXV1c2x2bmxrYnF6dGJkdXlzIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc0MDMwODQzOSwiZXhwIjoyMDU1ODg0NDM5fQ.oTifqXRyaBFyJReUHWIO21cwNBDd7PbplajanFdhbO8`,
+                        "Content-Type": "application/json"
+                    }
+                })
+                .then((response) => {
+                    if (!response.ok) {
+                        throw new Error(`Request failed with status ${response.status}`);
+                    }
+                    return response.json();
+                });
+            }
+            return orderItems;
+        })
+        .then((orderItems) => {
+            console.log('Final order items:', orderItems);
             if (orderItems.length === 0) {
                 orderHistoryElement.innerHTML = `<p>No order found with number: ${orderNumber}</p>`;
                 return;
@@ -244,8 +266,9 @@ document.addEventListener("DOMContentLoaded", () => {
             
             const orderHeader = document.createElement('div');
             orderHeader.className = 'order-header';
+            const displayOrderNumber = firstItem.order_number || firstItem.uid || orderNumber;
             orderHeader.innerHTML = `
-                <h3>Order #${firstItem.uid || orderNumber}</h3>
+                <h3>Order #${displayOrderNumber}</h3>
                 <span>${new Date(firstItem.order_date || new Date()).toLocaleString()}</span>
                 <span>Customer: ${firstItem.customer_name || 'N/A'}</span>
             `;
@@ -323,7 +346,7 @@ fetchOrderToEditBtn.addEventListener("click", async () => {
     const orderId = editOrderNumberInput.value.trim();
     const phoneNumber = document.getElementById("edit-phone-number").value.trim();
 
-    if (!orderId || isNaN(orderId)) {
+    if (!orderId) {
         alert("Please enter a valid order number.");
         editOrderNumberInput.focus();
         return;
@@ -336,8 +359,8 @@ fetchOrderToEditBtn.addEventListener("click", async () => {
     }
 
     try {
-        // First, verify the order exists and the phone number matches
-        const response = await fetch(`https://gfyuuslvnlkbqztbduys.supabase.co/rest/v1/orders?uid=eq.${orderId}&select=*`, {
+        // First try to find by order_number (new format)
+        let response = await fetch(`https://gfyuuslvnlkbqztbduys.supabase.co/rest/v1/orders?order_number=eq.${orderId}&select=*`, {
             headers: {
                 apikey: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdmeXV1c2x2bmxrYnF6dGJkdXlzIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc0MDMwODQzOSwiZXhwIjoyMDU1ODg0NDM5fQ.oTifqXRyaBFyJReUHWIO21cwNBDd7PbplajanFdhbO8",
                 Authorization: `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdmeXV1c2x2bmxrYnF6dGJkdXlzIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc0MDMwODQzOSwiZXhwIjoyMDU1ODg0NDM5fQ.oTifqXRyaBFyJReUHWIO21cwNBDd7PbplajanFdhbO8`,
@@ -345,7 +368,19 @@ fetchOrderToEditBtn.addEventListener("click", async () => {
             }
         });
 
-        const data = await response.json();
+        let data = await response.json();
+        
+        // If not found by order_number, try by uid (for old orders)
+        if (data.length === 0 && !isNaN(orderId)) {
+            response = await fetch(`https://gfyuuslvnlkbqztbduys.supabase.co/rest/v1/orders?uid=eq.${orderId}&select=*`, {
+                headers: {
+                    apikey: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdmeXV1c2x2bmxrYnF6dGJkdXlzIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc0MDMwODQzOSwiZXhwIjoyMDU1ODg0NDM5fQ.oTifqXRyaBFyJReUHWIO21cwNBDd7PbplajanFdhbO8",
+                    Authorization: `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdmeXV1c2x2bmxrYnF6dGJkdXlzIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc0MDMwODQzOSwiZXhwIjoyMDU1ODg0NDM5fQ.oTifqXRyaBFyJReUHWIO21cwNBDd7PbplajanFdhbO8`,
+                    "Content-Type": "application/json",
+                }
+            });
+            data = await response.json();
+        }
 
         if (data.length === 0) {
             alert("No order found with the provided order number.");
@@ -375,7 +410,8 @@ function displayEditableOrder(order) {
     // Display the order number being edited
     const orderNumberSpan = document.getElementById("editing-order-number");
     if (orderNumberSpan) {
-        orderNumberSpan.textContent = order.uid;
+        const displayOrderNumber = order.order_number || order.uid;
+        orderNumberSpan.textContent = displayOrderNumber;
     }
 
     // Set up cancel button
@@ -682,8 +718,9 @@ function saveEditedOrder(orderUid) {
             })
             .then((data) => {
                 console.log('Order creation response:', data);
-                const orderNumber = data[0]?.uid || 'N/A';
-                alert(`Order #${orderNumber} placed successfully!`);
+                const newOrder = data[0];
+                const displayOrderNumber = newOrder.order_number || newOrder.uid;
+                alert(`Order #${displayOrderNumber} placed successfully!`);
                 selectedProducts = [];
                 customerNameInput.value = "";
                 document.getElementById("customer-phone").value = "";
@@ -701,13 +738,14 @@ function saveEditedOrder(orderUid) {
                async function downloadOrderFile() {
                    const orderId = orderNumberInput.value.trim();
 
-                   if (!orderId || isNaN(orderId)) {
+                   if (!orderId) {
                                alert("Please enter a valid order number.");
                                return;
                    }
 
                    try {
-                       const response = await fetch(`https://gfyuuslvnlkbqztbduys.supabase.co/rest/v1/orders?uid=eq.${orderId}`,{
+                       // First try to find by order_number (new format)
+                       let response = await fetch(`https://gfyuuslvnlkbqztbduys.supabase.co/rest/v1/orders?order_number=eq.${orderId}`,{
                            headers: {
                                "Content-Type": "application/json",
                                "apikey": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdmeXV1c2x2bmxrYnF6dGJkdXlzIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc0MDMwODQzOSwiZXhwIjoyMDU1ODg0NDM5fQ.oTifqXRyaBFyJReUHWIO21cwNBDd7PbplajanFdhbO8",
@@ -715,7 +753,19 @@ function saveEditedOrder(orderUid) {
                            }
                        });
 
-                       const orders = await response.json();
+                       let orders = await response.json();
+                       
+                       // If not found by order_number, try by uid (for old orders)
+                       if (orders.length === 0 && !isNaN(orderId)) {
+                           response = await fetch(`https://gfyuuslvnlkbqztbduys.supabase.co/rest/v1/orders?uid=eq.${orderId}`,{
+                               headers: {
+                                   "Content-Type": "application/json",
+                                   "apikey": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdmeXV1c2x2bmxrYnF6dGJkdXlzIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc0MDMwODQzOSwiZXhwIjoyMDU1ODg0NDM5fQ.oTifqXRyaBFyJReUHWIO21cwNBDd7PbplajanFdhbO8",
+                                   "Authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdmeXV1c2x2bmxrYnF6dGJkdXlzIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc0MDMwODQzOSwiZXhwIjoyMDU1ODg0NDM5fQ.oTifqXRyaBFyJReUHWIO21cwNBDd7PbplajanFdhbO8"
+                               }
+                           });
+                           orders = await response.json();
+                       }
 
                        if (orders.length === 0) {
                            alert("No orders found for this customer.");
@@ -767,7 +817,8 @@ function saveEditedOrder(orderUid) {
                                     doc.setFont('helvetica', 'bold');
                                     const currentSize = doc.getFontSize();
                                     doc.setFontSize(currentSize + 2);
-                                    doc.text(`Bill Number: ${order.uid}`, 160, y);
+                                    const displayOrderNumber = order.order_number || order.uid;
+                                    doc.text(`Bill Number: ${displayOrderNumber}`, 160, y);
                                     doc.setFontSize(currentSize);
                                     doc.setFont('helvetica', 'normal');
                                     y += 5;
@@ -813,7 +864,7 @@ function saveEditedOrder(orderUid) {
                                     doc.setFontSize(8);
                                     doc.text("Pay to | SBI A/c Name: Jagannath Wellness, A/c No.: 40877005106, IFSC: SBIN0017948 | UPI: 7381716240", 20, y);
 
-                                    const fileName = `Order_${order.customer_name}_${order.uid}.pdf`;
+                                    const fileName = `Order_${order.customer_name}_${displayOrderNumber}.pdf`;
                                     y += 10; // Add some space for the thank you message
                                     doc.setFontSize(10);
                                     doc.setFont('helvetica', 'bold');
